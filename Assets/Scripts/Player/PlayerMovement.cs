@@ -7,6 +7,7 @@ public class PlayerMovement : MonoBehaviour
 {
     public Joystick joy; // Joystick referansı
     public float speed; // Hareket hızı
+    public Transform target; // Hedef referansı
     [SerializeField] private CharacterController characterController;
     public GrounderFBBIK grounder; // Final IK Grounder bileşeni
     private Animator animator; // Animator bileşeni
@@ -33,6 +34,12 @@ public class PlayerMovement : MonoBehaviour
         Vector3 joyMovement = new Vector3(joyHorizontalMove, 0, joyVerticalMove);
         joyMovement.Normalize();
 
+        // Hedefe bakma işlemi
+        Vector3 targetDirection = target.position - transform.position;
+        targetDirection.y = 0; // Y eksenindeki farkı yok sayıyoruz
+        Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 5f);
+
         // Eğer joystickten bir hareket varsa
         if (joyMovement.magnitude > 0.1f)
         {
@@ -44,9 +51,21 @@ public class PlayerMovement : MonoBehaviour
             // Hareketi gerçekleştiriyoruz
             characterController.Move(moveDirection * speed * Time.deltaTime);
 
-            // Animator parametrelerini güncelliyoruz
-            animator.SetFloat("VelocityX", joyHorizontalMove);
-            animator.SetFloat("VelocityZ", joyVerticalMove);
+            // Hedefin Z ekseninde karaktere göre nerede olduğunu kontrol ediyoruz
+            float zDifference = target.position.z - transform.position.z;
+
+            // Hedef ilerideyse animasyonları düz, gerideyse ters şekilde ayarla
+            if (zDifference >= 0)
+            {
+                animator.SetFloat("VelocityX", joyHorizontalMove);
+                animator.SetFloat("VelocityZ", joyVerticalMove);
+            }
+            else
+            {
+                // Hedef gerideyse animasyonları ters çevir
+                animator.SetFloat("VelocityX", -joyHorizontalMove);
+                animator.SetFloat("VelocityZ", -joyVerticalMove);
+            }
         }
         else
         {
