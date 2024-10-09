@@ -9,7 +9,7 @@ public class ZenjectInstaller : MonoInstaller
     {
     
        // Container.Bind<GridManager>().FromComponentInHierarchy().AsSingle();
-
+       Container.Bind<NearestEnemyTracker>().FromComponentInHierarchy().AsSingle();
 
        /*
         Container.Bind<SaveManager>()

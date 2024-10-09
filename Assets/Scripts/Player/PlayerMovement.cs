@@ -1,16 +1,22 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using RootMotion.FinalIK;
 using UnityEngine;
+using Zenject;
 
 public class PlayerMovement : MonoBehaviour
 {
     public Joystick joy; // Joystick referansı
     public float speed; // Hareket hızı
-    public Transform target; // Hedef referansı
     [SerializeField] private CharacterController characterController;
     public GrounderFBBIK grounder; // Final IK Grounder bileşeni
     private Animator animator; // Animator bileşeni
+
+    private Transform target;
+    
+    [Inject]
+    private NearestEnemyTracker nearestEnemyTracker;
 
     void Start()
     {
@@ -35,7 +41,9 @@ public class PlayerMovement : MonoBehaviour
         joyMovement.Normalize();
 
         // Hedefe bakma işlemi
-        Vector3 targetDirection = target.position - transform.position;
+        LookAtTarger();
+        
+        Vector3 targetDirection =  target.position - transform.position;
         targetDirection.y = 0; // Y eksenindeki farkı yok sayıyoruz
         Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 5f);
@@ -79,5 +87,11 @@ public class PlayerMovement : MonoBehaviour
         {
             grounder.weight = 1.0f; // Ayakların zemine adapte olmasını sağlar
         }
+    }
+
+    private void LookAtTarger()
+    {
+        target = nearestEnemyTracker.GetNearestEnemy();
+        GetComponent<LookAtIK>().solver.target = target;
     }
 }
