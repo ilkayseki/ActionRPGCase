@@ -10,7 +10,7 @@ public class ZenjectInstaller : MonoInstaller
     
        // Container.Bind<GridManager>().FromComponentInHierarchy().AsSingle();
        Container.Bind<NearestEnemyTracker>().FromComponentInHierarchy().AsSingle();
-
+       Container.Bind<PlayerAttributes>().FromComponentInHierarchy().AsSingle(); 
        /*
         Container.Bind<SaveManager>()
             .FromNewComponentOnNewGameObject() // Yeni bir GameObject oluştur ve onun üzerine SaveManager ekle

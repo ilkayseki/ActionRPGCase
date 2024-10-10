@@ -2,11 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PokemonFactory<T> : IEntityFactory<T> where T : Pokemon
+public class EnemyFactory<T> : IEntityFactory<T> where T : EnemyAttributes
 {
-    private PokemonData[] _data;
+    private EnemyData[] _data;
 
-    public PokemonFactory(PokemonData[] data) => _data=data;
+    public EnemyFactory(EnemyData[] data) => _data=data;
 
 
     public T Create(Transform spawnPoint)
@@ -14,9 +14,9 @@ public class PokemonFactory<T> : IEntityFactory<T> where T : Pokemon
         var data = _data[Random.Range(0, _data.Length)];
         var instance = Object.Instantiate(data.Prefab, spawnPoint);
 
-        T pokemon = instance.GetComponent<T>();
+        T enemy = instance.GetComponent<T>();
         
-        pokemon.SetData(data);
-        return pokemon;
+        enemy.SetData(data);
+        return enemy;
     }
 }

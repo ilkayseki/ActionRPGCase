@@ -10,7 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3f1be355c1c8bde4787df743c5684e00, type: 3}
-  m_Name: Pikachu
+  m_Name: Slime
   m_EditorClassIdentifier: 
   Prefab: {fileID: 1931298151966786, guid: 928a1377c1cd4515b208fef3a396b8ea, type: 3}
-  Name: Pikachu
+  Name: Slime
+  Speed: 2

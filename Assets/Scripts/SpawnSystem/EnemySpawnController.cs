@@ -4,18 +4,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using Utilities;
 
-public class PokemonSpawnController : EntitySpawnController
+public class EnemySpawnController : EntitySpawnController
 {
-    [SerializeField] private PokemonData[] _data;
+    [SerializeField] private EnemyData[] _data;
     [SerializeField] private float _interval = 1.0f; // 1 saniye aralıkla spawn edilecek
 
-    private EntitySpawner<Pokemon> _spawner;
+    private EntitySpawner<EnemyAttributes> _spawner;
     private CountDownTimer _timer;
 
     protected override void Awake()
     {
         base.Awake();
-        _spawner = new(new PokemonFactory<Pokemon>(_data), SpawnStrategy);
+        _spawner = new(new EnemyFactory<EnemyAttributes>(_data), SpawnStrategy);
         _timer = SetTimer();
     }
 
