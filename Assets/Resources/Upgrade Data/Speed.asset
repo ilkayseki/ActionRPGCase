@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeName: Speed
   upgradeLevels:
-  - value: 0
+  - value: 2
   - value: 1

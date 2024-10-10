@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeName: Power
   upgradeLevels:
-  - value: 0
   - value: 1
+  - value: 2

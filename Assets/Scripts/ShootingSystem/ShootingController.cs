@@ -10,7 +10,7 @@ public class ShootingController : MonoBehaviour
     public GameObject bulletPrefab; // Mermi prefab'ı
     [SerializeField] private float fireRate = 2f; // Ateş etme aralığı (saniye cinsinden)
     [SerializeField] private float bulletSpeed = 10f; // Mermi hızı
-    
+    private int bulletDamage = 1;
     private void Start()
     {
         StartCoroutine(FireRoutine());
@@ -47,8 +47,18 @@ public class ShootingController : MonoBehaviour
         GameObject bullet = Instantiate(bulletPrefab, transform.position, transform.rotation);
         Rigidbody rb = bullet.GetComponent<Rigidbody>();
         rb.velocity = transform.forward * bulletSpeed;
+        bullet.GetComponent<Bullet>().SetDamage(bulletDamage);
     }
 
+    public void SetBulletDamage(int d)
+    {
+        bulletDamage = d;
+    }
+
+    public void SetAttackSpeed(int d)
+    {
+        fireRate = d;
+    }
 
 /*
 

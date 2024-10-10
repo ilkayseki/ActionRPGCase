@@ -36,8 +36,23 @@ public class UpgradeManager : MonoBehaviour
 
     private void LoadUpgrade(UpgradeData upgrade)
     {
-        int savedLevel = PlayerPrefs.GetInt(upgrade.upgradeName + "_Level", 0);
-        upgradeLevels[upgrade.upgradeName] = savedLevel;
+        string key = upgrade.upgradeName + "_Level";
+
+        // Eğer PlayerPrefs'te bu anahtar yoksa, ilk seviyeyi ayarlıyoruz
+        if (!PlayerPrefs.HasKey(key))
+        {
+            Debug.LogError("Yok");
+
+            int initialLevel = 0; // Listenin ilk seviyesi
+            PlayerPrefs.SetInt(key, initialLevel);
+            PlayerPrefs.Save();
+            upgradeLevels[upgrade.upgradeName] = initialLevel;
+        }
+        else
+        {
+            int savedLevel = PlayerPrefs.GetInt(key);
+            upgradeLevels[upgrade.upgradeName] = savedLevel;
+        }
     }
 
     private void SaveUpgrade(UpgradeData upgrade)

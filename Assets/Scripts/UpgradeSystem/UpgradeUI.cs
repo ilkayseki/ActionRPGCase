@@ -5,10 +5,8 @@ using UnityEngine.UI;
 public class UpgradeUI : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI upgradeNameText; // Yükseltme adı metni
-    [SerializeField] private TextMeshProUGUI costText; // Maliyet metni
     [SerializeField] private TextMeshProUGUI currentValueText; // Geçerli değer metni
     [SerializeField] private TextMeshProUGUI nextValueText; // Sonraki değer metni
-    [SerializeField] private Button upgradeButton; // Yükseltme butonu
 
     private UpgradeData _upgradeData; // UpgradeData referansı
     private System.Action<UpgradeData> _onUpgradeClicked; // Yükseltme butonuna tıklama olayını temsil eder
@@ -19,7 +17,6 @@ public class UpgradeUI : MonoBehaviour
         _onUpgradeClicked = onUpgradeClicked;
 
         UpdateUI(); // UI'yi güncelle
-        upgradeButton.onClick.AddListener(OnUpgradeButtonClicked);
         upgradeNameText.text = _upgradeData.upgradeName; // Yükseltme adını ayarla
     }
 
@@ -48,14 +45,12 @@ public class UpgradeUI : MonoBehaviour
             if (currentLevel + 1 < _upgradeData.upgradeLevels.Count)
             {
                 nextValueText.text = $"Next: {_upgradeData.upgradeLevels[currentLevel + 1].value}"; // Sonraki değer
-                upgradeButton.interactable = true; // Butonu aktif et
             }
             else
             {
-                costText.text = "Cost: N/A"; // Maksimum seviyeye ulaşıldığında maliyeti gizle
                 currentValueText.text = $"Current: {levelData.value}";
                 nextValueText.text = $"Next: -";
-                upgradeButton.interactable = false; // Butonu devre dışı bırak
+                //upgradeButton.interactable = false; // Butonu devre dışı bırak
             }
 
            

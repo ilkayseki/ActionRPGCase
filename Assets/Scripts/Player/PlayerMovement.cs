@@ -96,4 +96,10 @@ public class PlayerMovement : MonoBehaviour
         target = nearestEnemyTracker.GetNearestEnemy();
         GetComponent<LookAtIK>().solver.target = target;
     }
+
+
+    public void SetSpeed(int s)
+    {
+        speed = s;
+    }
 }

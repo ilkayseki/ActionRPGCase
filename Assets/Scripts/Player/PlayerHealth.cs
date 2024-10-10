@@ -7,7 +7,6 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private float health;
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        
         // Çarpılan nesne EnemyAttributes bileşenine sahipse
         if (hit.gameObject.GetComponent<EnemyAttributes>())
         {
@@ -20,4 +19,10 @@ public class PlayerHealth : MonoBehaviour
             }
         }
     }
+
+    public void SetHealth(int h)
+    {
+        health = h;
+    }
+    
 }
