@@ -678,4 +678,4 @@ MonoBehaviour:
   playerMoneyPrefab: {fileID: 6359504811972714366, guid: 54b3f57e1752dd64d892e90c764b877c,
     type: 3}
   playerMoneyParent: {fileID: 835233870}
-  upgradeCost: 10
+  costData: {fileID: 11400000, guid: 782daedc86c024647a4db0dd02062def, type: 2}

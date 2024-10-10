@@ -14,12 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeName: AttackSpeed
   upgradeLevels:
-  - cost: 1
-    currentValue: 1
-    incrementValue: 2
-  - cost: 10
-    currentValue: 2
-    incrementValue: 3
-  - cost: 100
-    currentValue: 3
-    incrementValue: 4
+  - value: 0
+  - value: 1
+  - value: 2

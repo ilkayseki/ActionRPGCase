@@ -14,9 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeName: Power
   upgradeLevels:
-  - cost: 1
-    currentValue: 1
-    incrementValue: 1
-  - cost: 10
-    currentValue: 2
-    incrementValue: 10
+  - value: 0
+  - value: 1

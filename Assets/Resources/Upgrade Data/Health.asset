@@ -14,9 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeName: Health
   upgradeLevels:
-  - cost: 1
-    currentValue: 1
-    incrementValue: 2
-  - cost: 10
-    currentValue: 2
-    incrementValue: 3
+  - value: 0
+  - value: 1

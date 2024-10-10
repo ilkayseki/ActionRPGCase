@@ -9,10 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 89cf9467df3958644815d7707dd0e444, type: 3}
-  m_Name: Speed
+  m_Script: {fileID: 11500000, guid: 6e75aac3e86e602419f9e12bc216c9d5, type: 3}
+  m_Name: CostData
   m_EditorClassIdentifier: 
-  upgradeName: Speed
-  upgradeLevels:
-  - value: 0
-  - value: 1
+  costs: 010000000a0000000a0000000a0000006400000064000000

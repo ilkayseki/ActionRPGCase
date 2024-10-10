@@ -289,7 +289,7 @@ MonoBehaviour:
   upgradeNameText: {fileID: 4395221101266009132}
   costText: {fileID: 4395221101500894459}
   currentValueText: {fileID: 4395221102908769837}
-  newValueText: {fileID: 4395221101747567564}
+  nextValueText: {fileID: 4395221101747567564}
   upgradeButton: {fileID: 4395221101365187064}
 --- !u!1 &4395221101500894213
 GameObject:

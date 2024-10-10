@@ -1,26 +1,29 @@
 using System.Collections.Generic;
 using NaughtyAttributes;
-using TMPro; // TextMeshPro kütüphanesini ekle
+using TMPro;
 using UnityEngine;
 
 public class UpgradeManager : MonoBehaviour
 {
-    [SerializeField] private List<UpgradeData> upgrades; // Inspector'dan ayarlanacak UpgradeData listesi
+    [SerializeField] private List<UpgradeData> upgrades; // Yükseltme verileri
     [SerializeField] private GameObject upgradeUIPrefab; // Yükseltme UI prefabı
-    [SerializeField] private Transform upgradeUIParent;  // UI objelerinin atanacağı parent
+    [SerializeField] private Transform upgradeUIParent; // UI objeleri için parent
     [SerializeField] private GameObject playerMoneyPrefab; // Player money texti
-    [SerializeField] private Transform playerMoneyParent; // Player money texti
-    private TextMeshProUGUI playerMoneyText; // Player money texti
-    private Dictionary<string, int> upgradeLevels = new Dictionary<string, int>(); // Her yükseltmenin seviyesi
-    private List<UpgradeUI> upgradeUIs = new List<UpgradeUI>(); // UI objelerinin listesi
+    [SerializeField] private Transform playerMoneyParent; // Player money texti için parent
+    [SerializeField] private CostData costData; // CostData ScriptableObject'i
+    private TextMeshProUGUI playerMoneyText; // Player money text bileşeni
+    private Dictionary<string, int> upgradeLevels = new Dictionary<string, int>(); // Yükseltme seviyeleri
+    private List<UpgradeUI> upgradeUIs = new List<UpgradeUI>(); // Yükseltme UI bileşenleri
 
     private void Start()
     {
+        costData.LoadCostIndex(); // Maliyet indeksini yükle
         CreatePlayerMoneyUI();
         UpdatePlayerMoneyUI(); // Başlangıçta PlayerMoney UI'sını güncelle
+
         foreach (var upgrade in upgrades)
         {
-            LoadUpgrade(upgrade); // Kaydedilmiş verileri yükle
+            LoadUpgrade(upgrade); // Yükseltme seviyesini yükle
             CreateUpgradeUI(upgrade); // UI objelerini oluştur
         }
     }
@@ -33,14 +36,12 @@ public class UpgradeManager : MonoBehaviour
 
     private void LoadUpgrade(UpgradeData upgrade)
     {
-        // PlayerPrefs'den yükseltme seviyesi yüklenir, yoksa 0 olarak ayarlanır
         int savedLevel = PlayerPrefs.GetInt(upgrade.upgradeName + "_Level", 0);
         upgradeLevels[upgrade.upgradeName] = savedLevel;
     }
 
     private void SaveUpgrade(UpgradeData upgrade)
     {
-        // Yükseltme seviyesini kaydet
         int currentLevel = upgradeLevels[upgrade.upgradeName];
         PlayerPrefs.SetInt(upgrade.upgradeName + "_Level", currentLevel);
         PlayerPrefs.Save();
@@ -58,21 +59,24 @@ public class UpgradeManager : MonoBehaviour
     {
         int currentLevel = upgradeLevels[upgrade.upgradeName];
 
-        // Eğer son seviyeye ulaşılmamışsa yükseltme yapılabilir
         if (currentLevel < upgrade.upgradeLevels.Count)
         {
-            UpgradeLevel levelData = upgrade.upgradeLevels[currentLevel];
-            if (CanAffordUpgrade(levelData))
+            int cost = costData.GetCost(costData.currentLevelCostIndex); // Geçerli maliyeti al
+
+            if (CanAffordUpgrade(cost)) // Maliyet kontrolü
             {
-                // Yükseltme işlemi
-                ApplyUpgrade(upgrade, levelData);
+                ApplyUpgrade(upgrade);
 
                 // Seviye artışı
                 upgradeLevels[upgrade.upgradeName]++;
                 SaveUpgrade(upgrade);
 
                 // UI'yi güncelle
-                UpdateUI(upgrade); // UI güncellemesini burada kontrol edin
+                UpdateUI(upgrade);
+
+                // Maliyeti artır
+                costData.IncreaseCostIndex(); // Maliyet indeksini artır
+                costData.SaveCostIndex(); // Maliyet indeksini kaydet
             }
             else
             {
@@ -87,22 +91,23 @@ public class UpgradeManager : MonoBehaviour
         UpdatePlayerMoneyUI(); // Yükseltmeden sonra PlayerMoney UI'sını güncelle
     }
 
-    private bool CanAffordUpgrade(UpgradeLevel levelData)
+    private bool CanAffordUpgrade(int cost)
     {
         int playerMoney = PlayerPrefs.GetInt("PlayerMoney", 0);
-        return playerMoney >= levelData.cost;
+        return playerMoney >= cost;
     }
 
-    private void ApplyUpgrade(UpgradeData upgrade, UpgradeLevel levelData)
+    private void ApplyUpgrade(UpgradeData upgrade)
     {
-        // Oyuncunun parasını azalt
         int playerMoney = PlayerPrefs.GetInt("PlayerMoney", 0);
-        playerMoney -= levelData.cost;
+        int cost = costData.GetCost(costData.currentLevelCostIndex); // Geçerli maliyeti al
+
+        playerMoney -= cost; // Oyuncunun parasını azalt
         PlayerPrefs.SetInt("PlayerMoney", playerMoney);
         PlayerPrefs.Save();
 
         // Diğer işlemler: Oyuncunun sağlığı ya da hızı gibi değerleri güncelle
-        Debug.Log($"{upgrade.upgradeName} yükseltildi. Yeni Değer: {levelData.currentValue + levelData.incrementValue}");
+        Debug.Log($"{upgrade.upgradeName} yükseltildi.");
     }
 
     private void UpdateUI(UpgradeData upgrade)
@@ -126,8 +131,22 @@ public class UpgradeManager : MonoBehaviour
     [Button()]
     public void SetMoney()
     {
-        PlayerPrefs.SetInt("PlayerMoney", 10);
+        PlayerPrefs.SetInt("PlayerMoney", 100); // Örnek para değeri
     }
-    
-    
+
+    [Button()]
+    public void ResetAllPlayerPrefs()
+    {
+        PlayerPrefs.DeleteAll();
+        PlayerPrefs.Save();
+    }
+
+    [Button()]
+    private void RandomUpgrade()
+    {
+        int randomIndex = Random.Range(0, upgrades.Count);
+        UpgradeData upgrade = upgrades[randomIndex];
+
+        Upgrade(upgrade); // Rastgele yükseltmeyi uygula
+    }
 }
