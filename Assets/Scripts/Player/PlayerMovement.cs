@@ -32,28 +32,30 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        // Joystick değerlerini alıyoruz
+        // Joystick ve WASD değerlerini alıyoruz
         float joyHorizontalMove = joy.Horizontal;
         float joyVerticalMove = joy.Vertical;
+        float horizontalInput = Input.GetAxis("Horizontal"); // Klavye yatay ekseni (A ve D tuşları)
+        float verticalInput = Input.GetAxis("Vertical"); // Klavye dikey ekseni (W ve S tuşları)
 
-        // Hareket yönünü oluşturuyoruz
-        Vector3 joyMovement = new Vector3(joyHorizontalMove, 0, joyVerticalMove);
-        joyMovement.Normalize();
+        // Joystick veya klavyeden gelen hareketleri birleştiriyoruz
+        Vector3 inputMovement = new Vector3(joyHorizontalMove + horizontalInput, 0, joyVerticalMove + verticalInput);
+        inputMovement.Normalize();
 
         // Hedefe bakma işlemi
-        LookAtTarger();
+        LookAtTarget();
         
-        Vector3 targetDirection =  target.position - transform.position;
+        Vector3 targetDirection = target.position - transform.position;
         targetDirection.y = 0; // Y eksenindeki farkı yok sayıyoruz
         Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 5f);
 
-        // Eğer joystickten bir hareket varsa
-        if (joyMovement.magnitude > 0.1f)
+        // Eğer joystick veya klavyeden bir hareket varsa
+        if (inputMovement.magnitude > 0.1f)
         {
             // Yönlendirme işlemi
-            Vector3 moveDirection = new Vector3(joyMovement.x, 0, joyMovement.z);
-            moveDirection = Camera.main.transform.TransformDirection(moveDirection); // Kameraya göre yönlendirme
+            Vector3 moveDirection = new Vector3(inputMovement.x, 0, inputMovement.z);
+            //moveDirection = Camera.main.transform.TransformDirection(moveDirection); // Kameraya göre yönlendirme
             moveDirection.y = 0; // Y eksenindeki hareketi engelle
 
             // Hareketi gerçekleştiriyoruz
@@ -65,14 +67,14 @@ public class PlayerMovement : MonoBehaviour
             // Hedef ilerideyse animasyonları düz, gerideyse ters şekilde ayarla
             if (zDifference >= 0)
             {
-                animator.SetFloat("VelocityX", joyHorizontalMove);
-                animator.SetFloat("VelocityZ", joyVerticalMove);
+                animator.SetFloat("VelocityX", inputMovement.x);
+                animator.SetFloat("VelocityZ", inputMovement.z);
             }
             else
             {
                 // Hedef gerideyse animasyonları ters çevir
-                animator.SetFloat("VelocityX", -joyHorizontalMove);
-                animator.SetFloat("VelocityZ", -joyVerticalMove);
+                animator.SetFloat("VelocityX", -inputMovement.x);
+                animator.SetFloat("VelocityZ", -inputMovement.z);
             }
         }
         else
@@ -89,7 +91,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    private void LookAtTarger()
+    private void LookAtTarget()
     {
         target = nearestEnemyTracker.GetNearestEnemy();
         GetComponent<LookAtIK>().solver.target = target;
