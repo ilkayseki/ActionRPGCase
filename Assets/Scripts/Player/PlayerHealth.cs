@@ -7,8 +7,7 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private float health;
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        Debug.LogError(hit.gameObject.name);
-    
+        
         // Çarpılan nesne EnemyAttributes bileşenine sahipse
         if (hit.gameObject.GetComponent<EnemyAttributes>())
         {
