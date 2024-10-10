@@ -48,21 +48,19 @@ public class UpgradeUI : MonoBehaviour
             if (currentLevel + 1 < _upgradeData.upgradeLevels.Count)
             {
                 nextValueText.text = $"Next: {_upgradeData.upgradeLevels[currentLevel + 1].value}"; // Sonraki değer
+                upgradeButton.interactable = true; // Butonu aktif et
             }
             else
             {
-                nextValueText.text = "Next: Max"; // Maksimum seviyeye ulaşıldıysa "Max" göster
+                costText.text = "Cost: N/A"; // Maksimum seviyeye ulaşıldığında maliyeti gizle
+                currentValueText.text = $"Current: {levelData.value}";
+                nextValueText.text = $"Next: -";
+                upgradeButton.interactable = false; // Butonu devre dışı bırak
             }
 
-            upgradeButton.interactable = true; // Butonu aktif et
+           
         }
-        else
-        {
-            costText.text = "Cost: N/A"; // Maksimum seviyeye ulaşıldığında maliyeti gizle
-            currentValueText.text = $"Current: -";
-            nextValueText.text = $"Next: -";
-            upgradeButton.interactable = false; // Butonu devre dışı bırak
-        }
+        
     }
 
     private void OnUpgradeButtonClicked()
