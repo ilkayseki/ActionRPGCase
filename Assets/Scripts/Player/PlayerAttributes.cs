@@ -20,10 +20,10 @@ public class PlayerAttributes : MonoBehaviour
 
     private void GetPlayerAttributes()
     {
-        healthLevel = PlayerPrefs.GetInt("Health_Level");
-        powerLevel = PlayerPrefs.GetInt("Power_Level");
-        speedLevel = PlayerPrefs.GetInt("Speed_Level");
-        attackSpeedLevel = PlayerPrefs.GetInt("AttackSpeed_Level");
+        healthLevel = (int)PlayerPrefs.GetFloat("Health_Value");
+        powerLevel = (int)PlayerPrefs.GetFloat("Power_Value");
+        speedLevel = (int)PlayerPrefs.GetFloat("Speed_Value");
+        attackSpeedLevel =(int) PlayerPrefs.GetFloat("AttackSpeed_Value");
     }
 
     private void SetPlayerAttributes()

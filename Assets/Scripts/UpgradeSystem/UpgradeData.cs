@@ -1,16 +1,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "UpgradeData", menuName = "ScriptableObjects/UpgradeData")]
+[CreateAssetMenu(fileName = "NewUpgradeData", menuName = "Upgrade System/UpgradeData")]
 public class UpgradeData : ScriptableObject
 {
-    public string upgradeName; // Yükseltme adı
-    public List<UpgradeLevel> upgradeLevels; // Yükseltme seviyeleri
-}
+    public string upgradeName; // Yükseltmenin adı
+    public List<UpgradeLevel> upgradeLevels = new List<UpgradeLevel>(); // Yükseltme seviyeleri
 
+    [HideInInspector] public int currentLevel; // Mevcut seviye
+    [HideInInspector] public float currentValue; // Mevcut seviyenin değeri
+}
 
 [System.Serializable]
 public class UpgradeLevel
 {
-    public int value; // Yükseltme değeri
+    public float value; // Bu seviyedeki değer
 }

@@ -1,7 +1,11 @@
+using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using NaughtyAttributes;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
+using DG.Tweening;
 
 public class UpgradeManager : MonoBehaviour
 {
@@ -10,6 +14,8 @@ public class UpgradeManager : MonoBehaviour
     [SerializeField] private Transform upgradeUIParent; // UI objeleri için parent
     [SerializeField] private GameObject playerMoneyPrefab; // Player money texti
     [SerializeField] private Transform playerMoneyParent; // Player money texti için parent
+    [SerializeField] private GameObject randomUpgradePrefab; // Player money texti
+    [SerializeField] private Transform randomUpgradeParent; // Player money texti için parent
     [SerializeField] private CostData costData; // CostData ScriptableObject'i
     private TextMeshProUGUI playerMoneyText; // Player money text bileşeni
     private Dictionary<string, int> upgradeLevels = new Dictionary<string, int>(); // Yükseltme seviyeleri
@@ -19,6 +25,7 @@ public class UpgradeManager : MonoBehaviour
     {
         costData.LoadCostIndex(); // Maliyet indeksini yükle
         CreatePlayerMoneyUI();
+        CreateRandomUpgradeUI();
         UpdatePlayerMoneyUI(); // Başlangıçta PlayerMoney UI'sını güncelle
 
         foreach (var upgrade in upgrades)
@@ -28,6 +35,13 @@ public class UpgradeManager : MonoBehaviour
         }
     }
 
+    private void CreateRandomUpgradeUI()
+    {
+        GameObject uiObject = Instantiate(randomUpgradePrefab, randomUpgradeParent);
+        uiObject.GetComponent<Button>().onClick.AddListener(RandomUpgrade);
+
+    }
+    
     private void CreatePlayerMoneyUI()
     {
         GameObject uiObject = Instantiate(playerMoneyPrefab, playerMoneyParent);
@@ -36,27 +50,34 @@ public class UpgradeManager : MonoBehaviour
 
     private void LoadUpgrade(UpgradeData upgrade)
     {
-        string key = upgrade.upgradeName + "_Level";
-
-        // Eğer PlayerPrefs'te bu anahtar yoksa, ilk seviyeyi ayarlıyoruz
-        if (!PlayerPrefs.HasKey(key))
+        string levelKey = upgrade.upgradeName + "_Level";
+        string valueKey = upgrade.upgradeName + "_Value";
+    
+        // Eğer PlayerPrefs'te seviye kaydı yoksa yeni kayıt oluştur
+        if (!PlayerPrefs.HasKey(levelKey))
         {
-            Debug.LogError("Yok");
+            int initialLevel = 0;
+            float initialValue = upgrade.upgradeLevels[initialLevel].value;
 
-            int initialLevel = 0; // Listenin ilk seviyesi
-            PlayerPrefs.SetInt(key, initialLevel);
+            PlayerPrefs.SetInt(levelKey, initialLevel);
+            PlayerPrefs.SetFloat(valueKey, initialValue);
             PlayerPrefs.Save();
-            upgradeLevels[upgrade.upgradeName] = initialLevel;
-            
-            
-            
-            
+
+            upgrade.currentLevel = initialLevel;
+            upgrade.currentValue = initialValue;
         }
         else
         {
-            int savedLevel = PlayerPrefs.GetInt(key);
-            upgradeLevels[upgrade.upgradeName] = savedLevel;
+            // Kayıtlı olan seviyeyi ve değeri yükle
+            int savedLevel = PlayerPrefs.GetInt(levelKey);
+            float savedValue = PlayerPrefs.GetFloat(valueKey);
+
+            upgrade.currentLevel = savedLevel;
+            upgrade.currentValue = savedValue;
         }
+
+        // Dictionary güncellemesi
+        upgradeLevels[upgrade.upgradeName] = upgrade.currentLevel;
     }
 
     private void SaveUpgrade(UpgradeData upgrade)
@@ -118,16 +139,43 @@ public class UpgradeManager : MonoBehaviour
 
     private void ApplyUpgrade(UpgradeData upgrade)
     {
-        int playerMoney = PlayerPrefs.GetInt("PlayerMoney", 0);
-        int cost = costData.GetCost(costData.currentLevelCostIndex); // Geçerli maliyeti al
+        // Mevcut seviye
+        int currentLevel = upgrade.currentLevel;
 
-        playerMoney -= cost; // Oyuncunun parasını azalt
-        PlayerPrefs.SetInt("PlayerMoney", playerMoney);
-        PlayerPrefs.Save();
+        // Eğer son seviyeye ulaşılmamışsa yükseltme yapılabilir
+        if (currentLevel < upgrade.upgradeLevels.Count - 1)
+        {
+            int nextLevel = currentLevel + 1;
+            float nextValue = upgrade.upgradeLevels[nextLevel].value;
 
-        // Diğer işlemler: Oyuncunun sağlığı ya da hızı gibi değerleri güncelle
-        Debug.Log($"{upgrade.upgradeName} yükseltildi.");
+            // Mevcut seviyeyi ve değeri güncelle
+            upgrade.currentLevel = nextLevel;
+            upgrade.currentValue = nextValue;
+
+            // PlayerPrefs'e kaydet
+            string levelKey = upgrade.upgradeName + "_Level";
+            string valueKey = upgrade.upgradeName + "_Value";
+
+            PlayerPrefs.SetInt(levelKey, nextLevel);
+            PlayerPrefs.SetFloat(valueKey, nextValue);
+            PlayerPrefs.Save();
+
+            
+            int playerMoney = PlayerPrefs.GetInt("PlayerMoney", 0);
+            int cost = costData.GetCost(costData.currentLevelCostIndex); // Geçerli maliyeti al
+
+            playerMoney -= cost; // Oyuncunun parasını azalt
+            PlayerPrefs.SetInt("PlayerMoney", playerMoney);
+            PlayerPrefs.Save();
+            
+            Debug.Log($"{upgrade.upgradeName} yükseltildi. Yeni Seviye: {nextLevel}, Yeni Değer: {nextValue}");
+        }
+        else
+        {
+            Debug.Log($"{upgrade.upgradeName} maksimum seviyeye ulaştı!");
+        }
     }
+    
 
     private void UpdateUI(UpgradeData upgrade)
     {
@@ -151,6 +199,9 @@ public class UpgradeManager : MonoBehaviour
     public void SetMoney()
     {
         PlayerPrefs.SetInt("PlayerMoney", 100); // Örnek para değeri
+        PlayerPrefs.Save();
+
+
     }
 
     [Button()]
@@ -159,15 +210,85 @@ public class UpgradeManager : MonoBehaviour
         PlayerPrefs.DeleteAll();
         PlayerPrefs.Save();
     }
-
-    [Button()]
-    private void RandomUpgrade()
+    
+    public void RandomUpgrade()
     {
-        int randomIndex = Random.Range(0, upgrades.Count);
-        UpgradeData upgrade = upgrades[randomIndex];
+        // Maksimum seviyeye ulaşmayan yükseltmeleri filtrele
+        List<UpgradeData> availableUpgrades = new List<UpgradeData>();
 
-        Upgrade(upgrade); // Rastgele yükseltmeyi uygula
+        foreach (var upgrade in upgrades)
+        {
+            if (upgrade.currentLevel < upgrade.upgradeLevels.Count - 1)
+            {
+                availableUpgrades.Add(upgrade);
+            }
+        }
+
+        // Eğer hiç yükseltilebilir upgrade yoksa çık
+        if (availableUpgrades.Count == 0)
+        {
+            Debug.Log("Yükseltilebilecek başka upgrade kalmadı!");
+            return;
+        }
+
+        // Rastgele bir yükseltme seç
+        int randomIndex = Random.Range(0, availableUpgrades.Count);
+        UpgradeData selectedUpgrade = availableUpgrades[randomIndex];
+
+        // Seçilen yükseltmeyi uygula
+        Upgrade(selectedUpgrade);
     }
+    
+    
+    
+    
+    
+    
+    [SerializeField] private List<Image> upgradeButtons; // Upgrade butonlarının Image bileşenleri
+    [SerializeField] private Color highlightColor = Color.yellow;
+    [SerializeField] private Color finalColor = Color.red;
+    [SerializeField] private float highlightDuration = 0.1f;
+    [SerializeField] private float finalColorDuration = 3f;
+    
+[Button()]
+public void RandomUpgradeAnimation()
+{
+    StartCoroutine(UpgradeAnimationSequence());
+}
+
+private IEnumerator UpgradeAnimationSequence()
+{
+    // Rastgele 6 buton seçimi için bir liste oluştur
+    List<Image> randomButtons = new List<Image>();
+
+    for (int i = 0; i < 6; i++)
+    {
+        Image randomButton = upgradeButtons[Random.Range(0, upgradeButtons.Count)];
+        randomButtons.Add(randomButton);
+            
+        // Highlight yap (renk değişimi)
+        randomButton.DOColor(highlightColor, highlightDuration).SetLoops(2, LoopType.Yoyo);
+            
+        // Bekleme
+        yield return new WaitForSeconds(highlightDuration * 2);
+    }
+
+    // Son butonu al ve kırmızıya çevir
+    Image finalButton = randomButtons[randomButtons.Count - 1];
+    Color originalColor = finalButton.color;
+
+    finalButton.DOColor(finalColor, 0.5f);
+
+    // 3 saniye bekle
+    yield return new WaitForSeconds(finalColorDuration);
+
+    // Eski rengine geri dön
+    finalButton.DOColor(originalColor, 0.5f);
+}
+    
+    
+    
+    
     
     
 }

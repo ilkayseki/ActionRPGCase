@@ -15,4 +15,6 @@ MonoBehaviour:
   upgradeName: Speed
   upgradeLevels:
   - value: 2
-  - value: 1
+  - value: 3
+  currentLevel: 0
+  currentValue: 2
