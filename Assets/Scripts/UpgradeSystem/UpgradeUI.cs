@@ -62,4 +62,9 @@ public class UpgradeUI : MonoBehaviour
     {
         _onUpgradeClicked?.Invoke(_upgradeData); // Yükseltmeyi uygula
     }
+
+    public UpgradeData GetUpgradeData()
+    {
+        return _upgradeData;
+    }
 }

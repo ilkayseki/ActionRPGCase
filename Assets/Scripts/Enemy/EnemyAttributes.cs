@@ -1,4 +1,5 @@
 using System;
+using System.Data;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
@@ -11,23 +12,27 @@ public class EnemyAttributes : Entity
 
     private NavMeshAgent Amesh;
     
-    public static event Action<GameObject> OnPokemonEnabled;
-    public static event Action<GameObject> OnPokemonDisabled;
+    public static event Action<GameObject> OnEnemyEnabled;
+    public static event Action<GameObject> OnEnemyDisabled;
 
     private void OnEnable()
     {
-        OnPokemonEnabled?.Invoke(gameObject);
+        OnEnemyEnabled?.Invoke(gameObject);
     }
     
     private void OnDisable()
     {
-        OnPokemonDisabled?.Invoke(gameObject);
+        OnEnemyDisabled?.Invoke(gameObject);
     }
     
     public void SetData(EnemyData data)
     {
         Name = data.Name;
         GetComponent<EnemyMovement>().speed = data.Speed;
+
+        GetComponent<EnemyHealth>().health = data.Health;
+
+        GetComponent<EnemyHealth>().rewardedGold = data.RewardedGold;
     }
     
     

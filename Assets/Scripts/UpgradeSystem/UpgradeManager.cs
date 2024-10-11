@@ -21,6 +21,24 @@ public class UpgradeManager : MonoBehaviour
     private Dictionary<string, int> upgradeLevels = new Dictionary<string, int>(); // Yükseltme seviyeleri
     private List<UpgradeUI> upgradeUIs = new List<UpgradeUI>(); // Yükseltme UI bileşenleri
 
+    
+    #region Animation
+
+    
+    [HideInInspector]public List<GameObject> upgradeButtons; // Upgrade butonlarının Image bileşenleri
+    [SerializeField] private Color highlightColor = Color.yellow;
+    [SerializeField] private Color finalColor = Color.red;
+    [SerializeField] private float flashCount  = 3f;
+    [SerializeField] private float highlightDuration = 0.1f;
+    [SerializeField] private float finalColorDuration = 3f;
+    private int originalIndex;
+    private UpgradeData selectedUpgrade;
+    
+    
+    #endregion
+
+    
+    
     private void Start()
     {
         costData.LoadCostIndex(); // Maliyet indeksini yükle
@@ -90,6 +108,9 @@ public class UpgradeManager : MonoBehaviour
     private void CreateUpgradeUI(UpgradeData upgrade)
     {
         GameObject uiObject = Instantiate(upgradeUIPrefab, upgradeUIParent);
+        
+        upgradeButtons.Add(uiObject);
+        
         UpgradeUI ui = uiObject.GetComponent<UpgradeUI>();
         ui.SetUpgrade(upgrade, Upgrade); // UpgradeUI'ı ayarla
         upgradeUIs.Add(ui); // UI objesini listeye ekle
@@ -111,12 +132,13 @@ public class UpgradeManager : MonoBehaviour
                 upgradeLevels[upgrade.upgradeName]++;
                 SaveUpgrade(upgrade);
 
-                // UI'yi güncelle
-                UpdateUI(upgrade);
-
                 // Maliyeti artır
                 costData.IncreaseCostIndex(); // Maliyet indeksini artır
                 costData.SaveCostIndex(); // Maliyet indeksini kaydet
+                
+                
+                StartCoroutine(UpgradeAnimationSequence());
+                
             }
             else
             {
@@ -191,26 +213,17 @@ public class UpgradeManager : MonoBehaviour
 
     private void UpdatePlayerMoneyUI()
     {
-        int playerMoney = PlayerPrefs.GetInt("PlayerMoney", 0);
+        // Eğer "PlayerMoney" PlayerPrefs'te yoksa, 0 değeri ile oluştur
+        if (!PlayerPrefs.HasKey("PlayerMoney"))
+        {
+            PlayerPrefs.SetInt("PlayerMoney", 0);
+        }
+    
+        // PlayerMoney'yi al ve UI'ya ata
+        int playerMoney = PlayerPrefs.GetInt("PlayerMoney");
         playerMoneyText.text = $"Money: {playerMoney}"; // Parayı TextMeshPro bileşenine ata
     }
 
-    [Button()]
-    public void SetMoney()
-    {
-        PlayerPrefs.SetInt("PlayerMoney", 100); // Örnek para değeri
-        PlayerPrefs.Save();
-
-
-    }
-
-    [Button()]
-    public void ResetAllPlayerPrefs()
-    {
-        PlayerPrefs.DeleteAll();
-        PlayerPrefs.Save();
-    }
-    
     public void RandomUpgrade()
     {
         // Maksimum seviyeye ulaşmayan yükseltmeleri filtrele
@@ -230,65 +243,91 @@ public class UpgradeManager : MonoBehaviour
             Debug.Log("Yükseltilebilecek başka upgrade kalmadı!");
             return;
         }
-
+        /*
+         buraya, upgradeButtons listesini kontrol edecek kodu yaz
+         upgradeButtons içinde upradeUI classının içindeki upgrade data ile  availableUpgrades listesindeki dataları karşılaştır.
+         eğer upgradeButtons içinde availableUpgrades listesinde olmayan bir obje varsa sil
+        */
+        for (int i = upgradeButtons.Count - 1; i >= 0; i--) // Ters döngü, listeyi güvenli bir şekilde silmek için
+        {
+            UpgradeData buttonUpgradeData = upgradeButtons[i].GetComponent<UpgradeUI>().GetUpgradeData(); // UpgradeUI sınıfındaki upgradeData'yı al
+            if (!availableUpgrades.Contains(buttonUpgradeData)) // Eğer availableUpgrades içinde yoksa
+            {
+                Debug.Log($"Siliniyor: {buttonUpgradeData.upgradeName}");
+                upgradeButtons.RemoveAt(i); // Listeyi güncelle
+            }
+        }
+        
+        
         // Rastgele bir yükseltme seç
         int randomIndex = Random.Range(0, availableUpgrades.Count);
-        UpgradeData selectedUpgrade = availableUpgrades[randomIndex];
+        selectedUpgrade = availableUpgrades[randomIndex];
 
+        
+       originalIndex = upgradeButtons.FindIndex(button => 
+            button.GetComponent<UpgradeUI>().GetUpgradeData() == selectedUpgrade); 
+        
+        
         // Seçilen yükseltmeyi uygula
         Upgrade(selectedUpgrade);
+        
     }
-    
-    
-    
-    
-    
-    
-    [SerializeField] private List<Image> upgradeButtons; // Upgrade butonlarının Image bileşenleri
-    [SerializeField] private Color highlightColor = Color.yellow;
-    [SerializeField] private Color finalColor = Color.red;
-    [SerializeField] private float highlightDuration = 0.1f;
-    [SerializeField] private float finalColorDuration = 3f;
-    
-[Button()]
-public void RandomUpgradeAnimation()
-{
-    StartCoroutine(UpgradeAnimationSequence());
-}
 
-private IEnumerator UpgradeAnimationSequence()
-{
-    // Rastgele 6 buton seçimi için bir liste oluştur
-    List<Image> randomButtons = new List<Image>();
 
-    for (int i = 0; i < 6; i++)
+
+    private IEnumerator UpgradeAnimationSequence()
     {
-        Image randomButton = upgradeButtons[Random.Range(0, upgradeButtons.Count)];
-        randomButtons.Add(randomButton);
+        // Rastgele 6 buton seçimi için bir liste oluştur
+        List<Image> randomButtons = new List<Image>();
+
+        for (int i = 0; i < flashCount; i++)
+        {
+            Image randomButton = upgradeButtons[Random.Range(0, upgradeButtons.Count)].GetComponent<Image>();
+            randomButtons.Add(randomButton);
             
-        // Highlight yap (renk değişimi)
-        randomButton.DOColor(highlightColor, highlightDuration).SetLoops(2, LoopType.Yoyo);
+            // Highlight yap (renk değişimi)
+            randomButton.DOColor(highlightColor, highlightDuration).SetLoops(2, LoopType.Yoyo);
             
-        // Bekleme
-        yield return new WaitForSeconds(highlightDuration * 2);
+            // Bekleme
+            yield return new WaitForSeconds(highlightDuration * 2);
+        }
+
+        // Son butonu al ve kırmızıya çevir
+        Image finalButton = upgradeButtons[originalIndex].GetComponent<Image>();
+        Color originalColor = finalButton.color;
+
+        finalButton.DOColor(finalColor, 0.5f);
+
+        // 3 saniye bekle
+        yield return new WaitForSeconds(finalColorDuration);
+
+        // Eski rengine geri dön
+        finalButton.DOColor(originalColor, 0.5f);
+        
+        // UI'yi güncelle
+        UpdateUI(selectedUpgrade);
+        
+    }
+    
+  
+    [Button()]
+    public void SetMoney()
+    {
+        PlayerPrefs.SetInt("PlayerMoney", 100); // Örnek para değeri
+        PlayerPrefs.Save();
+        UpdatePlayerMoneyUI();
     }
 
-    // Son butonu al ve kırmızıya çevir
-    Image finalButton = randomButtons[randomButtons.Count - 1];
-    Color originalColor = finalButton.color;
-
-    finalButton.DOColor(finalColor, 0.5f);
-
-    // 3 saniye bekle
-    yield return new WaitForSeconds(finalColorDuration);
-
-    // Eski rengine geri dön
-    finalButton.DOColor(originalColor, 0.5f);
-}
-    
-    
-    
-    
+    [Button()]
+    public void ResetAllPlayerPrefs()
+    {
+        PlayerPrefs.DeleteAll();
+        PlayerPrefs.Save();
+        foreach (var var in upgrades)
+        {
+            UpdateUI(var);
+        }
+    }
     
     
 }

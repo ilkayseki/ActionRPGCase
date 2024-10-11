@@ -15,3 +15,5 @@ MonoBehaviour:
   Prefab: {fileID: 1524411113276028, guid: e2aafa8770d34a9591b41bedf4e318ba, type: 3}
   Name: balbazar
   Speed: 1
+  Health: 1
+  RewardedGold: 1

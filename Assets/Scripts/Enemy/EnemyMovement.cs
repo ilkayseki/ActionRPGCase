@@ -14,6 +14,9 @@ public class EnemyMovement : MonoBehaviour
         navMeshAgent = GetComponent<NavMeshAgent>();
         navMeshAgent.speed = speed;
         player = GameObject.FindWithTag("Player");
+
+        // Düşmanın yüzünü oyuncuya döndür
+        LookAtPlayer();
     }
 
     void FixedUpdate()
@@ -32,5 +35,13 @@ public class EnemyMovement : MonoBehaviour
             // Eğer durma mesafesine ulaşıldıysa dur
             navMeshAgent.ResetPath();
         }
+    }
+
+    private void LookAtPlayer()
+    {
+        // Oyuncunun konumuna bak
+        Vector3 direction = (player.transform.position - transform.position).normalized;
+        Quaternion lookRotation = Quaternion.LookRotation(direction);
+        transform.rotation = lookRotation;
     }
 }

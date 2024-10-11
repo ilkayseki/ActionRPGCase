@@ -11,14 +11,14 @@ public class NearestEnemyTracker : MonoBehaviour
     
     private void OnEnable()
     {
-        EnemyAttributes.OnPokemonEnabled += AddEnemy;
-        EnemyAttributes.OnPokemonDisabled += RemoveEnemy;
+        EnemyAttributes.OnEnemyEnabled += AddEnemy;
+        EnemyAttributes.OnEnemyDisabled += RemoveEnemy;
     }
 
     private void OnDisable()
     {
-        EnemyAttributes.OnPokemonEnabled -= AddEnemy;
-        EnemyAttributes.OnPokemonDisabled -= RemoveEnemy;
+        EnemyAttributes.OnEnemyEnabled -= AddEnemy;
+        EnemyAttributes.OnEnemyDisabled -= RemoveEnemy;
     }
 
     private void AddEnemy(GameObject enemy)

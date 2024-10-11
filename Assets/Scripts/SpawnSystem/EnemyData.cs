@@ -9,4 +9,7 @@ public class EnemyData : EntityData
 
     public float Speed;
 
+    public int Health;
+
+    public int RewardedGold;
 }

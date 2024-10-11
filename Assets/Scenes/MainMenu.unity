@@ -796,3 +796,9 @@ MonoBehaviour:
     type: 3}
   randomUpgradeParent: {fileID: 347094698}
   costData: {fileID: 11400000, guid: 782daedc86c024647a4db0dd02062def, type: 2}
+  upgradeButtons: []
+  highlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  finalColor: {r: 1, g: 0, b: 0, a: 1}
+  flashCount: 6
+  highlightDuration: 0.1
+  finalColorDuration: 3
