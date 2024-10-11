@@ -15,15 +15,11 @@ public class PlayerAttributes : MonoBehaviour
     {
         GetPlayerAttributes();
         
-        //SetPlayerAttributes();
+        SetPlayerAttributes();
     }
 
     private void GetPlayerAttributes()
     {
-        if (!PlayerPrefs.HasKey("Health_Level"))
-        {
-            Debug.LogError("Yok");
-        }
         healthLevel = PlayerPrefs.GetInt("Health_Level");
         powerLevel = PlayerPrefs.GetInt("Power_Level");
         speedLevel = PlayerPrefs.GetInt("Speed_Level");

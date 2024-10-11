@@ -47,6 +47,10 @@ public class UpgradeManager : MonoBehaviour
             PlayerPrefs.SetInt(key, initialLevel);
             PlayerPrefs.Save();
             upgradeLevels[upgrade.upgradeName] = initialLevel;
+            
+            
+            
+            
         }
         else
         {
@@ -164,4 +168,6 @@ public class UpgradeManager : MonoBehaviour
 
         Upgrade(upgrade); // Rastgele yükseltmeyi uygula
     }
+    
+    
 }
