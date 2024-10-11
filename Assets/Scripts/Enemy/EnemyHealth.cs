@@ -9,6 +9,8 @@ public class EnemyHealth : MonoBehaviour
     public float health;
     
     [SerializeField] private GameObject explosionPrefab; // Patlama efekti prefab'ı
+    [SerializeField] public GameObject goldboxPrefab; 
+
     [SerializeField] private float explosionDuration = 2f; // Patlama efektinin süresi
     public int rewardedGold;
     public void TakeDamage(int damageAmount)
@@ -20,7 +22,7 @@ public class EnemyHealth : MonoBehaviour
             GameObject explosion = Instantiate(explosionPrefab, transform.position, Quaternion.identity);
             // Belirli bir süre sonra patlama efektini yok et
             Destroy(explosion, explosionDuration);
-            HandleEnemyDied(rewardedGold);
+            CreateGoldBox();
             Destroy(gameObject);
         }
     }
@@ -29,17 +31,19 @@ public class EnemyHealth : MonoBehaviour
     {
         GameObject explosion = Instantiate(explosionPrefab, transform.position, Quaternion.identity);
         Destroy(explosion, explosionDuration);
-        HandleEnemyDied(rewardedGold);
+        CreateGoldBox();
         Destroy(gameObject);
     }
-    public void HandleEnemyDied(int gold)
+    
+    private void CreateGoldBox()
     {
-        // Oyuncunun mevcut parasını al
-        int playerMoney = PlayerPrefs.GetInt("PlayerMoney", 0);
-        playerMoney += gold; // Gelen altını ekle
-        PlayerPrefs.SetInt("PlayerMoney", playerMoney); // Güncellenmiş parayı kaydet
-        PlayerPrefs.Save(); // Değişiklikleri kaydet
-        Debug.Log($"Yeni Para Miktarı: {playerMoney}");
+        // Belirli bir prefab'ı belirli bir pozisyonda oluştur
+        GameObject goldbox = Instantiate(goldboxPrefab, transform.position, Quaternion.identity);
+        
+        goldbox.GetComponent<EnemyGoldBox>().AddRewardedGoldValue(rewardedGold);
     }
+    
+    
+    
    
 }

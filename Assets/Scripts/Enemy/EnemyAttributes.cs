@@ -33,6 +33,8 @@ public class EnemyAttributes : Entity
         GetComponent<EnemyHealth>().health = data.Health;
 
         GetComponent<EnemyHealth>().rewardedGold = data.RewardedGold;
+
+        GetComponent<EnemyHealth>().goldboxPrefab = data.GolBoxPrefab;
     }
     
     

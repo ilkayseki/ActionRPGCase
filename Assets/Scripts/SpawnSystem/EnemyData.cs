@@ -12,4 +12,6 @@ public class EnemyData : EntityData
     public int Health;
 
     public int RewardedGold;
+
+    public GameObject GolBoxPrefab;
 }

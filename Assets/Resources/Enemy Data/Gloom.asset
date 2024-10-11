@@ -17,3 +17,5 @@ MonoBehaviour:
   Speed: 0.6
   Health: 3
   RewardedGold: 3
+  GolBoxPrefab: {fileID: 3129200342344496425, guid: 3e29573f06c0a7e4fa986fff41de17af,
+    type: 3}
